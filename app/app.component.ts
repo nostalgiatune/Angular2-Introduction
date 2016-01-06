@@ -1,16 +1,8 @@
 import {Component} from 'angular2/core';
-
-interface Hero {
-    id: number;
-    name: string;
-}
-
-var HEROES: Hero[] = [
-    {id: 11, name: "CuntDestroyer"},
-    {id: 12, name: "Mr. Justice"},
-    {id: 13, name: "Losersson"},
-    {id: 14, name: "Nightman"}  
-];
+import {HeroDetailComponent} from './hero-detail.component';
+import {Hero} from './hero';
+import {HeroService} from './hero.service';
+import {OnInit} from 'angular2/core';
 
 @Component({
     selector: 'my-app',
@@ -24,14 +16,7 @@ var HEROES: Hero[] = [
       </li>
     </ul>
     
-    <div *ngIf="selectedHero">
-      <h2>{{selectedHero.name}} details</h2>
-      <div><label>id: </label>{{selectedHero.id}}</div>
-      <div>
-        <label>name: </label>{{selectedHero.name}}
-        <div><input [(ngModel)]="selectedHero.name" placeholder="name" /></div> 
-      </div>
-    </div>
+    <my-hero-detail [hero]="selectedHero"></my-hero-detail>
     `,
     styles: [`
     .selected {
@@ -60,7 +45,7 @@ var HEROES: Hero[] = [
     .heroes li:hover {
         color: #607D8B;
         background-color: #EEE;
-        left: .1em;
+        left: 0.5em;
     }
     .heroes .text {
         position: relative;
@@ -80,13 +65,27 @@ var HEROES: Hero[] = [
         margin-right: .8em;
         border-radius: 4px 0px 0px 4px;
     }
-    `]
+    `],
+    directives: [HeroDetailComponent],
+    providers: [HeroService]
 })
-export class AppComponent {
+export class AppComponent implements OnInit {
     
-    public heroes: Hero[] = HEROES;
+    public heroes: Hero[];
     public title: string = "Tour of Heroes";
     public selectedHero: Hero;
+    
+    // Don't use constructor for heavy lifting of data
+    constructor(private _heroService: HeroService) {
+    }
+    
+    ngOnInit() {
+        this.getHeroes();
+    }
+    
+    getHeroes() {
+        this._heroService.getHeroes().then(heroes => this.heroes = heroes);
+    }
     
     public onSelect(hero: Hero) {
         this.selectedHero = hero;
